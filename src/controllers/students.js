@@ -1,3 +1,4 @@
+import createHttpError from "http-errors";
 import { Student } from "../models/student.js";
 
 async function getStudents(req, res, next) {
@@ -11,7 +12,10 @@ async function getStudentById(req, res) {
   const user = await Student.findById(studentId);
   console.log({ user });
   if (user === null) {
-    return res.status(404).send({ status: 404, message: "User not found" });
+    // const error = new Error("Student not found"); це приклад створення кастомної помилки
+    // error.status = 404;
+    // return next(error);
+    return next(createHttpError(404, "Student not found"));
   }
   res.send({ status: 200, data: user });
   next(error);
