@@ -21,10 +21,15 @@ function updateStudent(studentId, student) {
   // { new: true } означає що в онсольку виведе новий документ, за замовчуванням повертає той, який має змінити до зміни
 }
 
+function changeStudentDuty(studentId, duty) {
+  return Student.findByIdAndUpdate(studentId, { onDuty: duty }, { new: true }); // тут вписується {new: true} для того щоб вклазати що результатом ми хочемо бачити об`єкт
+}
+
 export {
   getStudents,
   getStudentById,
   createStudent,
   deleteStudent,
   updateStudent,
+  changeStudentDuty,
 };

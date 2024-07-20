@@ -60,10 +60,23 @@ async function updateStudent(req, res, next) {
     .send({ status: 200, message: "Student updated", data: result });
 }
 
+async function changeStudentDuty(req, res, next) {
+  const { studentId } = req.params;
+
+  const duty = req.body.duty;
+
+  const result = await StudentService.changeStudentDuty(studentId, duty);
+
+  console.log({ result });
+
+  res.send("Duty");
+}
+
 export {
   getStudents,
   getStudentById,
   createStudent,
   deleteStudent,
   updateStudent,
+  changeStudentDuty,
 };
