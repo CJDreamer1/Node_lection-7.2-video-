@@ -1,5 +1,6 @@
 import * as StudentService from "../services/students.js";
 import createHttpError from "http-errors";
+import { studentSchema } from "../validations/students.js";
 
 async function getStudents(req, res) {
   const students = await StudentService.getStudents(); //метод .find потрібен, щоб викликати всі елементи колекції
@@ -7,9 +8,9 @@ async function getStudents(req, res) {
   res.send({ status: 200, students });
 }
 async function getStudentById(req, res, next) {
-  const { studentId } = req.params;
+  const { id } = req.params;
 
-  const student = await StudentService.getStudentById(studentId);
+  const student = await StudentService.getStudentById(id);
 
   if (student === null) {
     return next(createHttpError(404, "Student not found"));
@@ -25,6 +26,7 @@ async function createStudent(req, res, next) {
     email: req.body.email,
     year: req.body.year,
   };
+
   const createdStudent = await StudentService.createStudent(student);
   res
     .status(201)
@@ -32,8 +34,8 @@ async function createStudent(req, res, next) {
 }
 
 async function deleteStudent(req, res, next) {
-  const { studentId } = req.params;
-  const result = await StudentService.deleteStudent(studentId);
+  const { id } = req.params;
+  const result = await StudentService.deleteStudent(id);
   if (result === null) {
     return next(createHttpError(404, "Student not found"));
   }
@@ -41,7 +43,7 @@ async function deleteStudent(req, res, next) {
 }
 
 async function updateStudent(req, res, next) {
-  const { studentId } = req.params;
+  const { id } = req.params;
 
   const student = {
     name: req.body.name,
@@ -50,7 +52,7 @@ async function updateStudent(req, res, next) {
     year: req.body.year,
   };
 
-  const result = await StudentService.updateStudent(studentId, student);
+  const result = await StudentService.updateStudent(id, student);
 
   if (result === null) {
     return next(createHttpError(404, "Student not found"));
@@ -61,11 +63,11 @@ async function updateStudent(req, res, next) {
 }
 
 async function changeStudentDuty(req, res, next) {
-  const { studentId } = req.params;
+  const { id } = req.params;
 
   const duty = req.body.duty;
 
-  const result = await StudentService.changeStudentDuty(studentId, duty);
+  const result = await StudentService.changeStudentDuty(id, duty);
 
   console.log({ result });
 
