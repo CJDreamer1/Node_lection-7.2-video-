@@ -1,7 +1,28 @@
 import { Student } from "../models/student.js";
 
-function getStudents() {
-  return Student.find();
+async function getStudents({ page, perPage, sortBy, sortOrder }) {
+  const limit = perPage;
+  const skip = page > 0 ? (page - 1) * perPage : 0;
+
+  const [students, count] = await Promise.all([
+    // приклад одночасного await-a для 2 запитів
+    Student.find()
+      .sort({ [sortBy]: sortOrder })
+      .skip(skip)
+      .limit(limit)
+      .exec(),
+    Student.countDocuments(),
+  ]);
+
+  const totalPages = Math.ceil(count / perPage);
+  return {
+    students,
+    page,
+    perPage,
+    totalItems: count,
+    hasNextPage: totalPages - page > 0,
+    hasPreviousPage: page > 1,
+  };
 }
 
 function getStudentById(studentId) {

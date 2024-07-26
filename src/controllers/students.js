@@ -1,9 +1,19 @@
 import * as StudentService from "../services/students.js";
 import createHttpError from "http-errors";
 import { studentSchema } from "../validations/students.js";
+import { parsePaginationParams } from "../utils/parsePaginationParams.js";
+import { parseSortParams } from "../utils/parseSortParams.js";
 
 async function getStudents(req, res) {
-  const students = await StudentService.getStudents(); //метод .find потрібен, щоб викликати всі елементи колекції
+  const { page, perPage } = parsePaginationParams(req.query);
+  const { sortBy, sortOrder } = parseSortParams(req.query);
+
+  const students = await StudentService.getStudents({
+    page,
+    perPage,
+    sortBy,
+    sortOrder,
+  });
 
   res.send({ status: 200, students });
 }
