@@ -3,16 +3,19 @@ import createHttpError from "http-errors";
 import { studentSchema } from "../validations/students.js";
 import { parsePaginationParams } from "../utils/parsePaginationParams.js";
 import { parseSortParams } from "../utils/parseSortParams.js";
+import { parseFilterParams } from "../utils/parseFilterParams.js";
 
 async function getStudents(req, res) {
   const { page, perPage } = parsePaginationParams(req.query);
   const { sortBy, sortOrder } = parseSortParams(req.query);
+  const filter = parseFilterParams(req.query);
 
   const students = await StudentService.getStudents({
     page,
     perPage,
     sortBy,
     sortOrder,
+    filter,
   });
 
   res.send({ status: 200, students });

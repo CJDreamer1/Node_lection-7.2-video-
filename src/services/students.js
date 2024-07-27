@@ -1,17 +1,25 @@
 import { Student } from "../models/student.js";
 
-async function getStudents({ page, perPage, sortBy, sortOrder }) {
+async function getStudents({ page, perPage, sortBy, sortOrder, filter }) {
   const limit = perPage;
   const skip = page > 0 ? (page - 1) * perPage : 0;
 
+  const studentQuery = Student.find();
+  if (filter.minYear) {
+    studentQuery.where("year").gte(filter.minYear);
+  }
+  if (filter.maxYear) {
+    studentQuery.where("year").lte(filter.maxYear);
+  }
+
   const [students, count] = await Promise.all([
     // приклад одночасного await-a для 2 запитів
-    Student.find()
+    studentQuery //тут заміняємо Student.find() на відфільтрований по віку список
       .sort({ [sortBy]: sortOrder })
       .skip(skip)
       .limit(limit)
       .exec(),
-    Student.countDocuments(),
+    Student.countDocuments(studentQuery), //тут заміняємо Student на відфільтрований по віку список
   ]);
 
   const totalPages = Math.ceil(count / perPage);
