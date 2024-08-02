@@ -20,6 +20,10 @@ const studentSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  parentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema); //colection: mongo буде брати документи з колекції students - тобто переведе наш Student до нижнього регістру і зробить множину додавши в кінці закінчення s

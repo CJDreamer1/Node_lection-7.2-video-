@@ -1,6 +1,13 @@
 import { Student } from "../models/student.js";
 
-async function getStudents({ page, perPage, sortBy, sortOrder, filter }) {
+async function getStudents({
+  page,
+  perPage,
+  sortBy,
+  sortOrder,
+  filter,
+  parentId,
+}) {
   const limit = perPage;
   const skip = page > 0 ? (page - 1) * perPage : 0;
 
@@ -11,6 +18,8 @@ async function getStudents({ page, perPage, sortBy, sortOrder, filter }) {
   if (filter.maxYear) {
     studentQuery.where("year").lte(filter.maxYear);
   }
+
+  studentQuery.where("parentId").equals(parentId);
 
   const [students, count] = await Promise.all([
     // приклад одночасного await-a для 2 запитів
@@ -33,8 +42,9 @@ async function getStudents({ page, perPage, sortBy, sortOrder, filter }) {
   };
 }
 
-function getStudentById(studentId) {
-  return Student.findById(studentId); //Student.findOne({_id: studentId}) метод написання на простому JS бе звикористання Mongo
+function getStudentById(studentId, parentId) {
+  return Student.findOne({ _id: studentId, parentId }); //тут можна батькам буде бачити лише своїх дітей
+  // return Student.findById(studentId); //Student.findOne({_id: studentId}) метод написання на простому JS бе звикористання Mongo
 }
 
 function createStudent(student) {

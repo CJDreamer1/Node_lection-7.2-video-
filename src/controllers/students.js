@@ -1,11 +1,11 @@
 import * as StudentService from "../services/students.js";
 import createHttpError from "http-errors";
-import { studentSchema } from "../validations/students.js";
 import { parsePaginationParams } from "../utils/parsePaginationParams.js";
 import { parseSortParams } from "../utils/parseSortParams.js";
 import { parseFilterParams } from "../utils/parseFilterParams.js";
 
 async function getStudents(req, res) {
+  console.log(req.user);
   const { page, perPage } = parsePaginationParams(req.query);
   const { sortBy, sortOrder } = parseSortParams(req.query);
   const filter = parseFilterParams(req.query);
@@ -16,6 +16,7 @@ async function getStudents(req, res) {
     sortBy,
     sortOrder,
     filter,
+    parentId: req.user._id,
   });
 
   res.send({ status: 200, students });
@@ -23,7 +24,7 @@ async function getStudents(req, res) {
 async function getStudentById(req, res, next) {
   const { id } = req.params;
 
-  const student = await StudentService.getStudentById(id);
+  const student = await StudentService.getStudentById(id, req.user._id);
 
   if (student === null) {
     return next(createHttpError(404, "Student not found"));
@@ -32,12 +33,13 @@ async function getStudentById(req, res, next) {
   res.send({ status: 200, data: student });
 }
 
-async function createStudent(req, res, next) {
+async function createStudent(req, res) {
   const student = {
     name: req.body.name,
     gender: req.body.gender,
     email: req.body.email,
     year: req.body.year,
+    parentId: req.user._id,
   };
 
   const createdStudent = await StudentService.createStudent(student);
@@ -75,7 +77,7 @@ async function updateStudent(req, res, next) {
     .send({ status: 200, message: "Student updated", data: result });
 }
 
-async function changeStudentDuty(req, res, next) {
+async function changeStudentDuty(req, res) {
   const { id } = req.params;
 
   const duty = req.body.duty;
