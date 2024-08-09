@@ -1,8 +1,6 @@
 import * as fs from "node:fs/promises";
 import path from "node:path";
-
 import crypto from "node:crypto";
-
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import handlebars from "handlebars";
@@ -114,6 +112,7 @@ async function requestResetEmail(email) {
     html,
   });
 }
+
 async function resetPassword(password, token) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
