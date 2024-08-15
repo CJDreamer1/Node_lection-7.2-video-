@@ -10,6 +10,7 @@ import { User } from "../models/user.js";
 import { Session } from "../models/session.js";
 
 import { sendMail } from "../utils/sendMail.js";
+import { validateCode } from "../utils/googleOAuth2.js";
 
 import {
   ACCESS_TOKEN_TTL,
@@ -141,6 +142,49 @@ async function resetPassword(password, token) {
   }
 }
 
+async function loginOrRegisterWithGoogle(code) {
+  const ticket = await validateCode(code);
+
+  const payload = ticket.getPayload();
+
+  if (typeof payload === "undefined") {
+    throw createHttpError(401, "Unauthorized");
+  }
+
+  const user = await User.findOne({ email: payload.email });
+
+  if (user === null) {
+    const password = await bcrypt.hash(
+      crypto.randomBytes(30).toString("base64"),
+      10
+    );
+
+    const createdUser = await User.create({
+      email: payload.email,
+      name: payload.name,
+      password,
+    });
+
+    return Session.create({
+      userId: createdUser._id,
+      accessToken: crypto.randomBytes(30).toString("base64"),
+      refreshToken: crypto.randomBytes(30).toString("base64"),
+      accessTokenValidUntil: new Date(Date.now() + ACCESS_TOKEN_TTL),
+      refreshTokenValidUntil: new Date(Date.now() + REFRESH_TOKEN_TTL),
+    });
+  }
+
+  await Session.deleteOne({ userId: user._id });
+
+  return Session.create({
+    userId: user._id,
+    accessToken: crypto.randomBytes(30).toString("base64"),
+    refreshToken: crypto.randomBytes(30).toString("base64"),
+    accessTokenValidUntil: new Date(Date.now() + ACCESS_TOKEN_TTL),
+    refreshTokenValidUntil: new Date(Date.now() + REFRESH_TOKEN_TTL),
+  });
+}
+
 export {
   registerUser,
   loginUser,
@@ -148,4 +192,5 @@ export {
   refreshUserSession,
   requestResetEmail,
   resetPassword,
+  loginOrRegisterWithGoogle,
 };
