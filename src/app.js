@@ -8,10 +8,12 @@ import authRoutes from "./routes/auth.js";
 
 import { notFoundHandler } from "./middlewares/notFoundHandler.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import { swaggerDocs } from "./middlewares/swaggerDocs.js";
 
 const app = express();
 
 app.use(express.static(path.resolve("src", "uploads")));
+app.use("/api-docs", swaggerDocs());
 
 app.use(cookieParser());
 
